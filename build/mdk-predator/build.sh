@@ -82,10 +82,10 @@ EXTERNAL_DIR="$MAYHEM_DIR/firmware/application/external/mdk_predator"
 mkdir -p "$EXTERNAL_DIR"
 
 # Copy files
-cp -r "$SCRIPT_DIR/mdk-predator/app" "$EXTERNAL_DIR/"
-cp -r "$SCRIPT_DIR/mdk-predator/src" "$EXTERNAL_DIR/"
-cp -r "$SCRIPT_DIR/mdk-predator/include" "$EXTERNAL_DIR/"
-cp "$SCRIPT_DIR/mdk-predator/mdk_predator.conf" "$EXTERNAL_DIR/"
+cp -r "$SCRIPT_DIR/mdk-predator-source/app" "$EXTERNAL_DIR/"
+cp -r "$SCRIPT_DIR/mdk-predator-source/src" "$EXTERNAL_DIR/"
+cp -r "$SCRIPT_DIR/mdk-predator-source/include" "$EXTERNAL_DIR/"
+cp "$SCRIPT_DIR/mdk-predator-source/mdk_predator.conf" "$EXTERNAL_DIR/"
 
 # Register in external.cmake (update if not already present)
 EXTERNAL_CMAKE="$MAYHEM_DIR/firmware/application/external/external.cmake"
