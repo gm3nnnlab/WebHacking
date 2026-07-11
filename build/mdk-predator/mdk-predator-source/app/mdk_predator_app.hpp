@@ -30,7 +30,6 @@ public:
     MDKPredatorView(NavigationView& nav);
     ~MDKPredatorView();
 
-    void draw(FantaManipulator* fb) override;
     void focus() override;
     std::string title() const override { return "MDK-Predator"; };
 
@@ -83,11 +82,6 @@ private:
 
     void log_message(const std::string& message);
 
-    // Hardware acceleration support
-    bool use_hardware_accel = false;
-    uint32_t parallel_streams = 0;
-    mdk_device_info_t mdk_info = {};
-
     // Hardware integration methods
     void detect_mdk(); // Declaration for MDK detection
     void report_status(); // Declaration for status reporting
@@ -97,7 +91,6 @@ private:
 class AutomotiveView : public View {
 public:
     AutomotiveView(NavigationView& nav);
-    void draw(FantaManipulator* fb) override;
     void focus() override;
     std::string title() const override { return "Automotive"; };
 
@@ -153,7 +146,6 @@ private:
 class WiFiView : public View {
 public:
     WiFiView(NavigationView& nav);
-    void draw(FantaManipulator* fb) override;
     void focus() override;
     std::string title() const override { return "WiFi"; };
 
@@ -208,7 +200,6 @@ private:
 class BluetoothView : public View {
 public:
     BluetoothView(NavigationView& nav);
-    void draw(FantaManipulator* fb) override;
     void focus() override;
     std::string title() const override { return "Bluetooth"; };
 
@@ -263,7 +254,6 @@ private:
 class SubGHzView : public View {
 public:
     SubGHzView(NavigationView& nav);
-    void draw(FantaManipulator* fb) override;
     void focus() override;
     std::string title() const override { return "SubGHz RF"; };
 
@@ -325,7 +315,6 @@ private:
 class CryptoView : public View {
 public:
     CryptoView(NavigationView& nav);
-    void draw(FantaManipulator* fb) override;
     void focus() override;
     std::string title() const override { return "Crypto"; };
 

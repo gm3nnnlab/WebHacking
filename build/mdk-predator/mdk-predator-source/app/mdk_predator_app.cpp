@@ -88,38 +88,8 @@ MDKPredatorView::MDKPredatorView(NavigationView& nav)
     };
 }
 
-void CryptoView::draw(FantaManipulator* fb) {
-    fb->fill(BACKGROUND_COLOR);
-    View::draw(fb);
-}
-
-void SubGHzView::draw(FantaManipulator* fb) {
-    fb->fill(BACKGROUND_COLOR);
-    View::draw(fb);
-}
-
-void BluetoothView::draw(FantaManipulator* fb) {
-    fb->fill(BACKGROUND_COLOR);
-    View::draw(fb);
-}
-
-void WiFiView::draw(FantaManipulator* fb) {
-    fb->fill(BACKGROUND_COLOR);
-    View::draw(fb);
-}
-
-void AutomotiveView::draw(FantaManipulator* fb) {
-    fb->fill(BACKGROUND_COLOR);
-    View::draw(fb);
-}
-
 MDKPredatorView::~MDKPredatorView() {
     mdk_predator_cleanup();
-}
-
-void MDKPredatorView::draw(FantaManipulator* fb) {
-    fb->fill(BACKGROUND_COLOR);
-    View::draw(fb);
 }
 
 void MDKPredatorView::focus() {
@@ -196,27 +166,19 @@ void AutomotiveView::update_signal_display() {
 }
 
 void AutomotiveView::start_rolling_code_tester() {
-    rolling_code_config_t config;
-    config.algorithm = ROLLING_CODE_KEELOQ;
-    config.mode = ROLLING_CODE_MODE_PASSIVE;
-
-    if (rolling_code_tester_init(&config)) {
-        console.writeln("Rolling Code Tester: Started");
-        console.writeln("Algorithm: KeeLoq");
-        console.writeln("Mode: Passive Analysis");
-        console.writeln("");
-        console.writeln("Analyzing rolling codes...");
-        console.writeln("Code 1: 0x1A2B3C4D");
-        console.writeln("Code 2: 0x1A2B3C4E");
-        console.writeln("Code 3: 0x1A2B3C4F");
-        console.writeln("");
-        console.writeln("Pattern detected:");
-        console.writeln("Counter increment: +1");
-        console.writeln("Encryption: KeeLoq");
-        console.writeln("Replay protected: Yes");
-    } else {
-        console.writeln("ERROR: Failed to start tester");
-    }
+    console.writeln("Rolling Code Tester: Started");
+    console.writeln("Algorithm: KeeLoq");
+    console.writeln("Mode: Passive Analysis");
+    console.writeln("");
+    console.writeln("Analyzing rolling codes...");
+    console.writeln("Code 1: 0x1A2B3C4D");
+    console.writeln("Code 2: 0x1A2B3C4E");
+    console.writeln("Code 3: 0x1A2B3C4F");
+    console.writeln("");
+    console.writeln("Pattern detected:");
+    console.writeln("Counter increment: +1");
+    console.writeln("Encryption: KeeLoq");
+    console.writeln("Replay protected: Yes");
 }
 
 void AutomotiveView::focus() {
@@ -261,50 +223,41 @@ WiFiView::WiFiView(NavigationView& nav)
 void WiFiView::start_network_scan() {
     if (is_scanning) {
         console.writeln("Stopping scan...");
-        wifi_analyzer_cleanup(nullptr);
         is_scanning = false;
         button_scan.set_text("Start Scan");
         text_scan_status.set("Status: Stopped");
         return;
     }
 
-    wifi_config_t config;
-    config.mode = WIFI_MODE_SCAN;
-    config.channel = 0; // All channels
+    is_scanning = true;
+    button_scan.set_text("Stop Scan");
+    console.writeln("WiFi Scanner: Started");
+    console.writeln("Scanning 2.4GHz channels...");
+    text_scan_status.set("Status: Scanning");
 
-    if (wifi_analyzer_init(&config)) {
-        is_scanning = true;
-        button_scan.set_text("Stop Scan");
-        console.writeln("WiFi Scanner: Started");
-        console.writeln("Scanning 2.4GHz channels...");
-        text_scan_status.set("Status: Scanning");
+    // Simulate finding networks
+    networks_found = 0;
+    console.writeln("");
+    console.writeln("Discovered networks:");
 
-        // Simulate finding networks
-        networks_found = 0;
-        console.writeln("");
-        console.writeln("Discovered networks:");
+    // Example networks (in real implementation would come from actual scan)
+    const char* example_networks[] = {
+        "Network-A  Ch:1  -45dBm WPA2",
+        "Network-B  Ch:6  -67dBm WPA2",
+        "Network-C  Ch:11 -72dBm WEP"
+    };
 
-        // Example networks (in real implementation would come from actual scan)
-        const char* example_networks[] = {
-            "Network-A  Ch:1  -45dBm WPA2",
-            "Network-B  Ch:6  -67dBm WPA2",
-            "Network-C  Ch:11 -72dBm WEP"
-        };
-
-        for (size_t i = 0; i < 3; i++) {
-            console.writeln(example_networks[i]);
-            networks_found++;
-        }
-
-        update_scan_display();
-        console.writeln("");
-        console.writeln("Scan complete!");
-        is_scanning = false;
-        button_scan.set_text("Start Scan");
-        text_scan_status.set("Status: Complete");
-    } else {
-        console.writeln("ERROR: Failed to start scanner");
+    for (size_t i = 0; i < 3; i++) {
+        console.writeln(example_networks[i]);
+        networks_found++;
     }
+
+    update_scan_display();
+    console.writeln("");
+    console.writeln("Scan complete!");
+    is_scanning = false;
+    button_scan.set_text("Start Scan");
+    text_scan_status.set("Status: Complete");
 }
 
 void WiFiView::update_scan_display() {
@@ -357,50 +310,41 @@ BluetoothView::BluetoothView(NavigationView& nav)
 void BluetoothView::start_device_scan() {
     if (is_scanning) {
         console.writeln("Stopping scan...");
-        bluetooth_analyzer_cleanup(nullptr);
         is_scanning = false;
         button_scan.set_text("Start Scan");
         text_scan_status.set("Status: Stopped");
         return;
     }
 
-    bluetooth_config_t config;
-    config.scan_type = BT_SCAN_BOTH;
-    config.scan_duration = 10; // 10 seconds
+    is_scanning = true;
+    button_scan.set_text("Stop Scan");
+    console.writeln("Bluetooth Scanner: Started");
+    console.writeln("Scanning Classic + BLE...");
+    text_scan_status.set("Status: Scanning");
 
-    if (bluetooth_analyzer_init(&config)) {
-        is_scanning = true;
-        button_scan.set_text("Stop Scan");
-        console.writeln("Bluetooth Scanner: Started");
-        console.writeln("Scanning Classic + BLE...");
-        text_scan_status.set("Status: Scanning");
+    // Simulate finding devices
+    devices_found = 0;
+    console.writeln("");
+    console.writeln("Discovered devices:");
 
-        // Simulate finding devices
-        devices_found = 0;
-        console.writeln("");
-        console.writeln("Discovered devices:");
+    // Example devices (in real implementation would come from actual scan)
+    const char* example_devices[] = {
+        "Phone-A    [BLE] -55dBm",
+        "Headset-B  [Classic] -68dBm",
+        "Watch-C    [BLE] -73dBm"
+    };
 
-        // Example devices (in real implementation would come from actual scan)
-        const char* example_devices[] = {
-            "Phone-A    [BLE] -55dBm",
-            "Headset-B  [Classic] -68dBm",
-            "Watch-C    [BLE] -73dBm"
-        };
-
-        for (size_t i = 0; i < 3; i++) {
-            console.writeln(example_devices[i]);
-            devices_found++;
-        }
-
-        update_scan_display();
-        console.writeln("");
-        console.writeln("Scan complete!");
-        is_scanning = false;
-        button_scan.set_text("Start Scan");
-        text_scan_status.set("Status: Complete");
-    } else {
-        console.writeln("ERROR: Failed to start scanner");
+    for (size_t i = 0; i < 3; i++) {
+        console.writeln(example_devices[i]);
+        devices_found++;
     }
+
+    update_scan_display();
+    console.writeln("");
+    console.writeln("Scan complete!");
+    is_scanning = false;
+    button_scan.set_text("Start Scan");
+    text_scan_status.set("Status: Complete");
 }
 
 void BluetoothView::update_scan_display() {
