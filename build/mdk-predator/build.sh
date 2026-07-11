@@ -87,6 +87,10 @@ cp -r "$SCRIPT_DIR/mdk-predator-source/src" "$EXTERNAL_DIR/"
 cp -r "$SCRIPT_DIR/mdk-predator-source/include" "$EXTERNAL_DIR/"
 cp "$SCRIPT_DIR/mdk-predator-source/mdk_predator.conf" "$EXTERNAL_DIR/"
 
+# Copy headers to app directory for include resolution
+cp "$EXTERNAL_DIR/include"/*.h "$EXTERNAL_DIR/app/" 2>/dev/null || true
+cp "$EXTERNAL_DIR/include"/*.hpp "$EXTERNAL_DIR/app/" 2>/dev/null || true
+
 # Register in external.cmake (update if not already present)
 EXTERNAL_CMAKE="$MAYHEM_DIR/firmware/application/external/external.cmake"
 if ! grep -q "mdk_predator" "$EXTERNAL_CMAKE"; then
