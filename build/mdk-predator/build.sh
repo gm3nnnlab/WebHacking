@@ -95,8 +95,25 @@ if ! grep -q "mdk_predator" "$EXTERNAL_CMAKE"; then
     # Backup original
     cp "$EXTERNAL_CMAKE" "$EXTERNAL_CMAKE.backup"
 
-    # Add MDK-Predator sources and app
-    sed -i '1s/^/# mdk_predator auto-registered by build script\n/' "$EXTERNAL_CMAKE"
+    # Add MDK-Predator sources to EXTCPPSRC
+    sed -i '/^set(EXTCPPSRC$/a\
+\
+	#mdk_predator security research suite\
+	external/mdk_predator/app/main.cpp\
+	external/mdk_predator/app/mdk_predator_app.cpp\
+	external/mdk_predator/src/mdk_predator.c\
+	external/mdk_predator/src/mdk_hardware_interface.cpp\
+	external/mdk_predator/src/mdk_hardware_interface_portapack.cpp\
+	external/mdk_predator/src/automotive/key_fob_analyzer.c\
+	external/mdk_predator/src/automotive/rolling_code_tester.c\
+	external/mdk_predator/src/wireless/wifi_analyzer.c\
+	external/mdk_predator/src/wireless/bluetooth_analyzer.c\
+	external/mdk_predator/src/wireless/subghz_analyzer.c\
+	external/mdk_predator/src/crypto/crypto_analyzer.c' "$EXTERNAL_CMAKE"
+
+    # Add to EXTAPPLIST
+    sed -i '/^set(EXTAPPLIST$/a\
+	mdk_predator' "$EXTERNAL_CMAKE"
 fi
 
 # Build firmware
