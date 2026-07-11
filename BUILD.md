@@ -3,17 +3,34 @@
 ## Project Overview
 MDK-Predator is a security research suite for the PortaPack H4M with Mayhem firmware. This document tracks the build process and current status.
 
-## Build Status: SOURCE CODE PATCHED ✓ | BINARY COMPILATION BLOCKED
+## Build Status: FIRMWARE HAL FIXED ✓ | APPLICATION BUILD IN PROGRESS
 
 ### Successfully Completed:
 1. **Source Code Compatibility** - Patched MDK-Predator for PortaPack external app framework
 2. **Build System Integration** - Updated build.sh to properly integrate with CMake
 3. **Header Path Resolution** - Fixed include directories and relative paths
 4. **Compilation Compatibility** - Resolved type conflicts and missing declarations
+5. **Hardware Abstraction Layer** - Created lpc43xx_m0_device.h with proper LPC43xx peripheral definitions
 
-### Current Blockers:
-- Upstream firmware issue: mayhem-firmware hal_lld.c has undefined symbol references (LPC_RITIMER, LPC_TIMER3, etc.)
-- This prevents application.elf from building, which blocks .ppma generation
+### hal_lld.c Fix Details:
+**Issue**: Undefined peripheral symbols (LPC_RITIMER, LPC_TIMER3, LPC_CCU1, RITIMER_OR_WWDT_IRQn)
+
+**Root Cause**: mayhem-firmware's LPC43xx_M0 platform lacked device header with peripheral structures
+
+**Solution Implemented**:
+- Created `/firmware/chibios-portapack/os/hal/platforms/LPC43xx_M0/lpc43xx_m0_device.h`
+- Defined CMSIS register structures: LPC_TIMER_Type, LPC_RITIMER_Type, LPC_CCU1_Type
+- Defined CCU1 configuration register types with proper bitfield layouts
+- Added IRQn_Type enum with RITIMER_OR_WWDT_IRQn (11)
+- Defined LPC43XX_M0_CLK_PLL1_AT_BOOT constant (96MHz)
+- Added CMSIS I/O macros for volatile register access (__IO, __I, __O)
+
+**Verification**: hal_lld.c now compiles successfully without errors
+
+### Remaining Blockers:
+- Baseband module linker errors (baseband_subghzd.elf, baseband_weather.elf) - undefined `_sbrk`
+- These are pre-existing firmware issues unrelated to MDK-Predator
+- External application framework compilation is proceeding normally
 
 ## Source Code Patches Applied
 
@@ -163,9 +180,11 @@ build/mdk-predator/
 - ✓ Updated build.sh script
 - ✓ .gitignore for build artifacts
 - ✓ BUILD_STATUS_FINAL.md documentation
+- ✓ Fixed hal_lld.c with device header (lpc43xx_m0_device.h)
 
-### Pending (Blocked by upstream firmware):
-- ⏳ mdk_predator.ppma binary file
+### Pending:
+- ⏳ mdk_predator.ppma binary file (external app framework)
+- ⏳ Resolve baseband module linker errors if needed
 - ⏳ Complete firmware package
 
 ## Test Results
@@ -209,4 +228,19 @@ build/mdk-predator/
 
 **Last Updated**: 2026-07-11
 **Branch**: claude/build-mdk-predator-netmvd  
-**Status**: Source code ready for deployment; awaiting upstream firmware fix for binary compilation
+**Status**: hal_lld.c firmware compilation fixed; proceeding with external application binary generation
+
+## Session Progress (Current)
+
+**Objective**: Fix upstream firmware compilation errors blocking MDK-Predator build
+
+**Achievement**: 
+- ✓ Identified root cause: missing LPC43xx_M0 device header with peripheral register definitions
+- ✓ Created comprehensive lpc43xx_m0_device.h with full CMSIS register types
+- ✓ hal_lld.c now compiles without errors
+- ✓ External application framework compilation proceeding normally
+
+**Next Steps**:
+1. Validate external app .ppma file generation
+2. Test on PortaPack H4M hardware
+3. Resolve baseband linker errors if needed for full firmware
