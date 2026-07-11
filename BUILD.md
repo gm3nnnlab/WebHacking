@@ -230,17 +230,54 @@ build/mdk-predator/
 **Branch**: claude/build-mdk-predator-netmvd  
 **Status**: hal_lld.c firmware compilation fixed; proceeding with external application binary generation
 
-## Session Progress (Current)
+## Session Progress (Current - Build Investigation)
 
-**Objective**: Fix upstream firmware compilation errors blocking MDK-Predator build
+**Objective**: Produce working MDK-Predator executable for PortaPack H4M
 
-**Achievement**: 
-- ✓ Identified root cause: missing LPC43xx_M0 device header with peripheral register definitions
-- ✓ Created comprehensive lpc43xx_m0_device.h with full CMSIS register types
-- ✓ hal_lld.c now compiles without errors
-- ✓ External application framework compilation proceeding normally
+**Achievements**: 
+- ✓ Fixed baseband module _sbrk linker errors by adding syscalls.c to M4 platform.cmake
+- ✓ Resolved hal_lld.c firmware compilation for M0 with device header (lpc43xx_m0_device.h)
+- ✓ Integrated MDK-Predator sources into mayhem-firmware external app framework
+- ✓ Registered MDK-Predator in external.cmake for compilation
+- ✓ All baseband modules now compile successfully (weather, subghzd, etc.)
+- ✓ Created comprehensive lpc43xx_m4_device.h for M4 CMSIS/SysTick definitions
 
-**Next Steps**:
-1. Validate external app .ppma file generation
-2. Test on PortaPack H4M hardware
-3. Resolve baseband linker errors if needed for full firmware
+**Current Blocker**: 
+application.elf build failing at gpio.hpp compilation stage (LPC43xx_M0 platform):
+
+Error Details:
+- Missing symbol: `LPC_SCU` (System Control Unit peripheral base address)
+- Missing types: `ioportid_t`, `iopadid_t` (port/pad ID types from HAL)
+- Missing functions: `palSetPad`, `palClearPad`, `palTogglePad` (Port Abstraction Layer)
+- These come from hal platform layer, not available in M0 platform
+
+**Root Cause Analysis**:
+The "Gpio modify v4" commit (8561ff3) introduced new GPIO access patterns that depend on:
+1. M4-specific hardware peripheral definitions (LPC_SCU)
+2. HAL port abstraction layer types (ioportid_t, iopadid_t)
+3. Port access functions (pal*)
+
+These are M4/M0 CPU core-specific PAL layer definitions that require the board.cpp or similar to initialize the HAL properly first.
+
+**Architectural Issue Found**:
+- Application *should* be built for M0 (UI runs on M0 core)
+- But gpio.hpp uses M4-specific register access patterns
+- board.cpp initializes both cores (M4 first, then M0)
+- The gpio.hpp code appears to only work after full board initialization with M4 hardware setup
+
+**Potential Root Cause**:
+The application build configuration doesn't match the C++ code assumptions. Code written for full system init (M4+M0) is being compiled for M0-only.
+
+**Investigated Paths**:
+1. **M4 Platform** - Tried switching application to M4, but hit different errors in lpc43xx.c (struct member mismatches like `base->clk->PD` not existing)
+2. **Docker Build** - Failed due to proxy restrictions (httpReadSeeker timeout fetching base image)
+3. **M0 Platform with M4 Headers** - Still blocked by gpio.hpp dependencies on runtime M4 initialization
+
+**Status**: Fundamental firmware architecture issue beyond MDK-Predator scope
+
+**Recommended Solutions**:
+1. **Consult mayhem-firmware maintainers** - Ask about build configuration for "Gpio modify v4" changes
+2. **Use stable release binary** - mayhem-firmware releases page may have pre-built application.bin
+3. **Check older firmware version** - Version before commit 8561ff3 might build successfully  
+4. **Custom minimal build** - Build only baseband modules, not application UI layer
+5. **Prebuilt .ppma from release** - If available on mayhem-firmware releases
