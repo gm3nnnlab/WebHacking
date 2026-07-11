@@ -1,7 +1,7 @@
 #ifndef ROLLING_CODE_TESTER_H
 #define ROLLING_CODE_TESTER_H
 
-#include "automotive/key_fob_analyzer.h" // For signal_data_t
+#include "key_fob_analyzer.h" // For signal_data_t
 #include <stdbool.h>
 
 #define ROLLING_CODE_KEELOQ 1

@@ -85,6 +85,7 @@ mkdir -p "$EXTERNAL_DIR"
 cp -r "$SCRIPT_DIR/mdk-predator-source/app" "$EXTERNAL_DIR/"
 cp -r "$SCRIPT_DIR/mdk-predator-source/src" "$EXTERNAL_DIR/"
 cp -r "$SCRIPT_DIR/mdk-predator-source/include" "$EXTERNAL_DIR/"
+cp -r "$SCRIPT_DIR/mdk-predator-source/hal" "$EXTERNAL_DIR/"
 cp "$SCRIPT_DIR/mdk-predator-source/mdk_predator.conf" "$EXTERNAL_DIR/"
 
 # Copy headers to app directory for include resolution
@@ -93,6 +94,9 @@ cp "$EXTERNAL_DIR/include"/*.hpp "$EXTERNAL_DIR/app/" 2>/dev/null || true
 
 # Copy subdirectory headers to app directory
 cp -r "$EXTERNAL_DIR/include"/* "$EXTERNAL_DIR/app/" 2>/dev/null || true
+
+# Copy all include files to src directory for include resolution
+cp -r "$EXTERNAL_DIR/include"/* "$EXTERNAL_DIR/src/" 2>/dev/null || true
 
 # Register in external.cmake (update if not already present)
 EXTERNAL_CMAKE="$MAYHEM_DIR/firmware/application/external/external.cmake"
@@ -121,6 +125,13 @@ if ! grep -q "mdk_predator" "$EXTERNAL_CMAKE"; then
     # Add to EXTAPPLIST
     sed -i '/^set(EXTAPPLIST$/a\
 	mdk_predator' "$EXTERNAL_CMAKE"
+
+    # Add include directories for MDK-Predator
+    echo "" >> "$EXTERNAL_CMAKE"
+    echo "# MDK-Predator include directories" >> "$EXTERNAL_CMAKE"
+    echo "include_directories(external/mdk_predator/include)" >> "$EXTERNAL_CMAKE"
+    echo "include_directories(external/mdk_predator/src)" >> "$EXTERNAL_CMAKE"
+    echo "include_directories(external/mdk_predator/hal)" >> "$EXTERNAL_CMAKE"
 fi
 
 # Build firmware
