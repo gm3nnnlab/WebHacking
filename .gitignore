@@ -1,0 +1,21 @@
+# Build artifacts
+build/mdk-predator/build/
+build/mdk-predator/build_output.log
+build/mdk-predator/mayhem-firmware/
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# System
+.DS_Store
+*.o
+*.a
