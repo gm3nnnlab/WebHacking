@@ -2,6 +2,7 @@
 build/mdk-predator/build/
 build/mdk-predator/build_output.log
 build/mdk-predator/build_final.log
+build/mdk-predator/build_patched.log
 build/mdk-predator/mayhem-firmware/
 
 # CMake
